@@ -1,8 +1,3 @@
-
-'''
-Has working validator and removes incorrect values
-'''
-
 from tkinter import *
 from tkinter import ttk
 from solver import solver
@@ -13,13 +8,13 @@ import threading
 
 wrong = []
 
-root = Tk()
-root.title("Multithreaded Sudoku")
-root.geometry("550x550")
+base = Tk()
+base.title("Multithreaded Sudoku")
+base.geometry("550x550")
 
-label = Label(root, text="Fill in the numbers and click solve").grid(row=0, column=1, columnspan=10)
+label = Label(base, text="Fill in the numbers and click solve").grid(row=0, column=1, columnspan=10)
 
-timerFrame = ttk.Frame(root, borderwidth=2, relief="groove", style="Timer.TFrame")
+timerFrame = ttk.Frame(base, borderwidth=2, relief="groove", style="Timer.TFrame")
 timerFrame.grid(row=0, column=15, columnspan=10, padx=10, pady=10)
 
 timerLabel = ttk.Label(timerFrame, text="", font=("Helvetica", 16), style="Timer.TLabel")
@@ -51,32 +46,32 @@ def start_timer():
     timer.start()
 
 
-errLabel = Label(root, text="", fg="red")
-errLabel.grid(row=15, column=1, columnspan=20, pady=5)
+errorText = Label(base, text="", fg="red")
+errorText.grid(row=15, column=1, columnspan=20, pady=5)
 
-solvedLabel = Label(root, text="", fg="green")
+solvedLabel = Label(base, text="", fg="green")
 solvedLabel.grid(row=15, column=1, columnspan=29, pady=5)
 
 cells = {}
 
-def ValidateNumber(P):
+def checkNumber(P):
     out = (P.isdigit() or P == "") and len(P) < 2
     return out
 
-reg = root.register(ValidateNumber)
+reg = base.register(checkNumber)
 
-def draw3x3Grid(row, column, bgcolor):
+def drawblock3x3(row, column, bgcolor):
     for i in range(3):
         for j in range(3):
-            e = Entry(root, width=5, bg=bgcolor, justify="center", validate="key", validatecommand=(reg, "%P"))
-            e.grid(row=row+i+1, column=column+j+1, sticky="nsew", padx=1, pady=1, ipady=5)
-            cells[(row+i+1, column+j+1)] = e
+            ent = Entry(base, width=5, bg=bgcolor, justify="center", validate="key", validatecommand=(reg, "%P"))
+            ent.grid(row=row+i+1, column=column+j+1, sticky="nsew", padx=1, pady=1, ipady=5)
+            cells[(row+i+1, column+j+1)] = ent
 
-def draw9x9Grid():
+def drawblock9x9():
     color = "#D0ffff"
-    for rowNo in range(1, 10, 3):
-        for colNo in range(0,9,3):
-            draw3x3Grid(rowNo, colNo, color)
+    for rowNum in range(1, 10, 3):
+        for colNum in range(0,9,3):
+            drawblock3x3(rowNum, colNum, color)
             if color == "#D0ffff":
                 color = "#ffffd0"
             else:
@@ -84,7 +79,7 @@ def draw9x9Grid():
 
 def clearValues():
     global timer, start_time
-    errLabel.configure(text="")
+    errorText.configure(text="")
     solvedLabel.configure(text="")
     for row in range(2, 11):
         for col in range(1 , 10):
@@ -96,9 +91,9 @@ def clearValues():
         start_time = None
         timerLabel.configure(text="Time : _ seconds")
 
-def getValues():
+def getNumbers():
     board = []
-    errLabel.configure(text="")
+    errorText.configure(text="")
     solvedLabel.configure(text="")
     for row in range(2, 11):
         rows = []
@@ -138,7 +133,7 @@ def solSudoku(s):
 
 def validate():  
     valid = True
-    errLabel.configure(text="")
+    errorText.configure(text="")
     solvedLabel.configure(text="")
     #print(solution)
     unsolved = 0
@@ -165,14 +160,14 @@ def validate():
         else:
             solvedLabel.configure(text="No incorrect entries")
     else: 
-        errLabel.configure(text="Wrong entry")
+        errorText.configure(text="Wrong entry")
 
                 
 def ClearWrong(): 
-    errLabel.configure(text="")
+    errorText.configure(text="")
     solvedLabel.configure(text="")
     if len(wrong) == 0:
-        errLabel.configure(text="No incorrect values")
+        errorText.configure(text="No incorrect values")
     else:
         for entry in wrong:
             cell = cells[(entry[0], entry[1])]
@@ -190,22 +185,22 @@ def clearTimer():
     start_time = None
     timerLabel.configure(text="Time : _ seconds")
 
-btn = Button(root, command=generate, text="Generate", width=10)
+btn = Button(base, command=generate, text="Generate", width=10)
 btn.grid(row=20, column=0, columnspan=10, pady=10)
 
-btn = Button(root, command=getValues, text="Solve", width=5)
+btn = Button(base, command=getNumbers, text="Solve", width=5)
 btn.grid(row=20, column=10, columnspan=10, pady=10)
 
-btn = Button(root, command=clearValues, text="Clear", width=5)
+btn = Button(base, command=clearValues, text="Clear", width=5)
 btn.grid(row=20, column=20, columnspan=10, pady=10)
 
-btn = Button(root, command=validate, text="Validate", width=10)
+btn = Button(base, command=validate, text="Validate", width=10)
 btn.grid(row=21, column=0, columnspan=10, pady=10)
 
-btn = Button(root, command=ClearWrong, text="Clear Incorrect", width=10)
+btn = Button(base, command=ClearWrong, text="Clear Incorrect", width=10)
 btn.grid(row=21, column=10, columnspan=10, pady=10)
 
-btn = Button(root, command=clearTimer, text="Clear Timer", width=10)
+btn = Button(base, command=clearTimer, text="Clear Timer", width=10)
 btn.grid(row=21, column=20, columnspan=10, pady=10)
 
 
@@ -219,12 +214,12 @@ def updateValues(s):
                 cells[(rows, col)].insert(0, sol[rows -2 ][col - 1])
         solvedLabel.configure(text="Sudoku solved!")
     else:
-        errLabel.configure(text="No solution exists for this sudoku")
+        errorText.configure(text="No solution exists for this sudoku")
 
 
 
 
 
 
-draw9x9Grid()
-root.mainloop()
+drawblock9x9()
+base.mainloop()
